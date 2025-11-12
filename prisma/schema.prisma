@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  image         String?
+  role          Role     @default(USER)
+  passwordHash  String?              // <-- add this
+  preferences   Preference?
+  favorites     Favorite[]
+  reviews       Review[]
+  shoppingLists ShoppingList[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+model Preference {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @unique
+  diets       String[]
+  cuisines    String[]
+  skillLevel  String?
+  maxCookTime Int?
+  allergies   String[]
+}
+
+model Recipe {
+  id             String     @id
+  title          String
+  summary        String?
+  image          String?
+  sourceUrl      String?
+  spoonacularId  Int?       @unique
+  readyInMinutes Int?
+  servings       Int?
+  cuisines       String[]
+  diets          String[]
+  ingredients    Json?
+  steps          Json?
+  nutrition      Json?
+  avgRating      Float      @default(0)
+  ratingCount    Int        @default(0)
+  createdBy      String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  Favorite       Favorite[]
+  Review         Review[]
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, recipeId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  String
+  createdAt DateTime @default(now())
+}
+
+model ShoppingList {
+  id        String         @id @default(cuid())
+  name      String         @default("My List")
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String
+  items     ShoppingItem[]
+  createdAt DateTime       @default(now())
+}
+
+model ShoppingItem {
+  id       String       @id @default(cuid())
+  list     ShoppingList @relation(fields: [listId], references: [id])
+  listId   String
+  label    String
+  quantity Float?
+  unit     String?
+  meta     Json?
+  checked  Boolean      @default(false)
+}
+
+model SearchLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  query     String
+  filters   Json?
+  results   Int
+  tookMs    Int
+  createdAt DateTime @default(now())
+}
