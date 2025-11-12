@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/server/auth";
 import { db } from "@/server/db";
 
 async function requireAdmin() {
@@ -21,4 +21,3 @@ export async function GET() {
   });
   return NextResponse.json({ reviews });
 }
-

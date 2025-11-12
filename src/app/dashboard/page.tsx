@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/server/auth";
 import SearchSection from "@/components/search/SearchSection";
 import TrendingPopular from "@/components/home/TrendingPopular";
 import IngredientSpotlight from "@/components/home/IngredientSpotlight";

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/server/auth";
 import { db } from "@/server/db";
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
@@ -23,4 +23,3 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
 
   return NextResponse.json({ ok: true });
 }
-
