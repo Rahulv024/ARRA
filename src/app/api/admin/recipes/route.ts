@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
 import { db } from "@/server/db";
+import { Prisma } from "@prisma/client";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -67,8 +68,8 @@ export async function POST(req: Request) {
     cuisines: Array.isArray(body.cuisines) ? (body.cuisines as string[]) : [],
     diets: Array.isArray(body.diets) ? (body.diets as string[]) : [],
     sourceUrl: body.sourceUrl || null,
-    ingredients: Array.isArray(body.ingredients) ? (body.ingredients as any[]) : null,
-    steps: Array.isArray(body.steps) ? (body.steps as any[]) : null,
+    ingredients: Array.isArray(body.ingredients) ? (body.ingredients as any[]) : Prisma.JsonNull,
+    steps: Array.isArray(body.steps) ? (body.steps as any[]) : Prisma.JsonNull,
   };
 
   // If a spoonacularId is provided and already exists, update instead of create
@@ -85,7 +86,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const id = body.id || (globalThis.crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()));
+    const id = body.id || crypto.randomUUID();
     const rec = await db.recipe.create({
       data: { id, ...data },
       select: { id: true, title: true, image: true, spoonacularId: true, readyInMinutes: true, servings: true, cuisines: true, diets: true, sourceUrl: true },
@@ -117,8 +118,8 @@ export async function PATCH(req: Request) {
   if (typeof body.servings === "number" || body.servings === null) data.servings = body.servings ?? null;
   if (Array.isArray(body.cuisines)) data.cuisines = body.cuisines;
   if (Array.isArray(body.diets)) data.diets = body.diets;
-  if (Array.isArray(body.ingredients) || body.ingredients === null) data.ingredients = body.ingredients ?? null;
-  if (Array.isArray(body.steps) || body.steps === null) data.steps = body.steps ?? null;
+  if (Array.isArray(body.ingredients) || body.ingredients === null) data.ingredients = Array.isArray(body.ingredients) ? body.ingredients : Prisma.JsonNull;
+  if (Array.isArray(body.steps) || body.steps === null) data.steps = Array.isArray(body.steps) ? body.steps : Prisma.JsonNull;
 
   try {
     const rec = await db.recipe.update({
