@@ -1,9 +1,11 @@
 import { db } from "@/server/db";
-import dynamic from "next/dynamic";
+export const dynamic = "force-dynamic"; // avoid prerendering DB calls on Vercel
+export const revalidate = 0;
+import nextDynamic from "next/dynamic";
 
-const UserManager = dynamic(() => import("@/components/admin/UserManager"), { ssr: false });
-const ReviewModerator = dynamic(() => import("@/components/admin/ReviewModerator"), { ssr: false });
-const RecipeManager = dynamic(() => import("@/components/admin/RecipeManager"), { ssr: false });
+const UserManager = nextDynamic(() => import("@/components/admin/UserManager"), { ssr: false });
+const ReviewModerator = nextDynamic(() => import("@/components/admin/ReviewModerator"), { ssr: false });
+const RecipeManager = nextDynamic(() => import("@/components/admin/RecipeManager"), { ssr: false });
 
 export default async function AdminPage() {
   const [searches, recipes] = await Promise.all([
